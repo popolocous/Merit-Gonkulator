@@ -34,8 +34,7 @@
         
         let submittedName = ''; // Global to hold the name for the success message
         
-        // --- NOTE: The hidden <iframe> and the formSubmitComplete function have been removed.
-        // --- Submission now uses the 'fetch' API in prepareAndSubmit for better reliability.
+        // --- NOTE: Submission now uses the 'fetch' API with URLSearchParams for reliable submission.
 
     </script>
 </head>
@@ -143,7 +142,7 @@
             document.getElementById('student-name').focus();
         });
 
-        // Updated function to use the fetch API instead of a hidden iframe
+        // Updated function to use the fetch API with URLSearchParams for reliable submission
         async function prepareAndSubmit() {
             const nameInput = document.getElementById('student-name');
             const statusSelect = document.getElementById('status-select');
@@ -179,29 +178,33 @@
             document.getElementById('loader').classList.remove('hidden');
             submitButton.disabled = true;
 
-            // --- 1. Create FormData object ---
-            const formData = new FormData();
+            // --- 1. Create URLSearchParams object (mimics standard form POST data) ---
+            const searchParams = new URLSearchParams();
             
-            // Add fields to the FormData object
-            formData.append(`entry.${MERIT_NUMBER_ENTRY_ID}`, currentMeritNumber); 
-            formData.append(`entry.${NAME_ENTRY_ID}`, studentName);
-            formData.append(`entry.${STATUS_ENTRY_ID}`, selectedStatus);
+            // Add fields to the URLSearchParams object
+            searchParams.append(`entry.${MERIT_NUMBER_ENTRY_ID}`, currentMeritNumber); 
+            searchParams.append(`entry.${NAME_ENTRY_ID}`, studentName);
+            searchParams.append(`entry.${STATUS_ENTRY_ID}`, selectedStatus);
 
             const detailsToSubmit = selectedStatus === 'Other' ? otherDetails : '';
-            formData.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, detailsToSubmit);
+            searchParams.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, detailsToSubmit);
 
             // --- 2. Send the request using fetch ---
             try {
-                // Use 'no-cors' mode to submit to the cross-origin Google Forms endpoint.
-                // The response will be opaque, but the submission itself will succeed.
+                // Use 'no-cors' mode and the correct Content-Type for Google Forms.
                 const response = await fetch(FORM_RESPONSE_BASE_URL, {
                     method: 'POST',
-                    body: formData,
+                    // The body is the URL encoded string
+                    body: searchParams.toString(),
+                    // Crucial header for Google Forms POST submission
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
                     mode: 'no-cors' 
                 });
                 
-                // Since the mode is 'no-cors', the response status will always be 0/opaque. 
-                // We assume success if the fetch completes without throwing an error.
+                // Since the mode is 'no-cors', the response status is opaque (always success here). 
+                // We rely on the request having been sent successfully.
                 
                 // Show success content
                 const submittedNameSpan = document.getElementById('submitted-name');
@@ -219,7 +222,6 @@
                 document.getElementById('form-content').classList.remove('hidden');
                 submitButton.disabled = false;
                 
-                // Note: The most common 'error' here will be a network failure or a true block.
                 errorMessage.textContent = 'An error occurred during submission. Please check your connection or try again.';
                 errorMessage.classList.remove('hidden');
             }
