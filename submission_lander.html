@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merit Number Check-in</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -12,23 +11,23 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <!-- Configuration Area (UPDATED WITH YOUR NEW IDs) -->
+    <!-- =================================================================== -->
+    <!--  CONFIGURATION AREA (FULLY UPDATED WITH YOUR CORRECT IDs)           -->
+    <!-- =================================================================== -->
     <script>
         // 1. FORM RESPONSE BASE URL (CORRECT)
         const FORM_RESPONSE_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLScbcQWyLVWLH7oKs81TeswmMhuVF5ezkRanyZXU9jVQ7qGK1g/formResponse"; 
 
-        // 2. MERIT NUMBER ENTRY ID (CORRECTED FROM YOUR LINK)
+        // 2. MERIT NUMBER ENTRY ID (FROM YOUR LINK)
         const MERIT_NUMBER_ENTRY_ID = "1378183435";
 
-        // 3. STUDENT NAME ENTRY ID (CORRECTED FROM YOUR LINK)
+        // 3. STUDENT NAME ENTRY ID (FROM YOUR LINK)
         const NAME_ENTRY_ID = "893236315"; 
         
-        // 4. STATUS & OTHER DETAILS ENTRY ID (CORRECTED FROM YOUR LINK)
-        // IMPORTANT: The link provided showed "other other" for this ID.
-        // It's likely this ID is for both the Status dropdown and the 'Other' text field.
-        // If they are separate questions in your form, you must generate a new pre-filled link
-        // with ALL fields filled to get distinct IDs.
-        const STATUS_ENTRY_ID = "588052225";
+        // 4. STATUS DROPDOWN ENTRY ID (FROM YOUR LINK)
+        const STATUS_ENTRY_ID = "956882888";
+
+        // 5. OTHER DETAILS TEXT INPUT ENTRY ID (FROM YOUR LINK)
         const OTHER_DETAILS_ENTRY_ID = "588052225"; 
         
         // Error check
@@ -39,7 +38,7 @@
     
     <div id="app" class="bg-white p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-lg transition-all duration-300">
         <div id="loader" class="hidden text-center">
-            <svg class="animate-spin mx-auto h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 L24 24">
+            <svg class="animate-spin mx-auto h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -49,39 +48,27 @@
         <div id="form-content">
             <h1 class="text-3xl font-extrabold text-indigo-700 mb-2">Merit Number Check-in</h1>
             <p class="text-gray-600 mb-6">Merit Number: <span id="asset-display" class="font-bold text-gray-800 bg-indigo-100 px-2 py-0.5 rounded-md">-- Loading --</span></p>
-
-            <!-- Student Name Input -->
-            <label for="student-name" class="block text-sm font-medium text-gray-700 mb-2">
-                Student Name
-            </label>
-            <input type="text" id="student-name" placeholder="Enter your full name" 
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm mb-4"
-                   required>
-                   
+            
+            <!-- Student Name Input (Placeholder Text Updated) -->
+            <label for="student-name" class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
+            <input type="text" id="student-name" placeholder="Enter full name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm mb-4" required>
+            
             <!-- Status Dropdown -->
-            <label for="status-select" class="block text-sm font-medium text-gray-700 mb-2">
-                Select Status
-            </label>
-            <select id="status-select" onchange="toggleOtherDetails()"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm appearance-none bg-white mb-4"
-                    required>
+            <label for="status-select" class="block text-sm font-medium text-gray-700 mb-2">Select Status</label>
+            <select id="status-select" onchange="toggleOtherDetails()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm appearance-none bg-white mb-4" required>
                 <option value="" disabled selected>-- Choose Status --</option>
                 <option value="Awarded">Awarded</option>
                 <option value="Redeemed">Redeemed</option>
                 <option value="Other">Other (Requires Details)</option>
             </select>
-
+            
             <!-- Conditional Other Details Input -->
             <div id="other-details-container" class="hidden mb-4 p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
-                <label for="other-details" class="block text-sm font-medium text-gray-800 mb-2">
-                    Please Specify Details (Required for 'Other')
-                </label>
-                <input type="text" id="other-details" placeholder="e.g., Error in printing, Lost" 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm">
+                <label for="other-details" class="block text-sm font-medium text-gray-800 mb-2">Please Specify Details (Required for 'Other')</label>
+                <input type="text" id="other-details" placeholder="e.g., Error in printing, Lost" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm">
             </div>
-
-            <button onclick="submitData()" id="submit-button"
-                    class="mt-6 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:scale-[1.01]">
+            
+            <button onclick="submitData()" id="submit-button" class="mt-6 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:scale-[1.01]">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.103a2.403 2.403 0 00-3.411 0L12 9.584 7.793 5.376a2.403 2.403 0 10-3.411 3.411l5.88 5.88 7.07-7.07a2.403 2.403 0 000-3.411z"></path></svg>
                 Check In Merit Number
             </button>
@@ -117,13 +104,12 @@
             } else {
                 container.classList.add('hidden');
                 otherDetailsInput.required = false;
-                otherDetailsInput.value = ''; // Clear the input if not needed
+                otherDetailsInput.value = '';
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             currentMeritNumber = getUrlParameter('meritNumber');
-            
             if (!currentMeritNumber) {
                 document.getElementById('asset-display').textContent = 'ERROR: No Merit Number in URL';
                 document.getElementById('error-message').textContent = 'Please scan a valid QR code.';
@@ -131,7 +117,6 @@
                 document.getElementById('submit-button').disabled = true;
                 return;
             }
-
             document.getElementById('asset-display').textContent = currentMeritNumber;
             document.getElementById('student-name').focus();
         });
@@ -140,20 +125,16 @@
             const nameInput = document.getElementById('student-name');
             const statusSelect = document.getElementById('status-select');
             const otherDetailsInput = document.getElementById('other-details');
-            
             const studentName = nameInput.value.trim();
             const selectedStatus = statusSelect.value;
             const otherDetails = otherDetailsInput.value.trim();
-            
             const errorMessage = document.getElementById('error-message');
 
-            // --- Validation ---
             if (!studentName || !selectedStatus) {
                 errorMessage.textContent = 'Please enter your name and select a status.';
                 errorMessage.classList.remove('hidden');
                 return;
             }
-
             if (selectedStatus === 'Other' && !otherDetails) {
                 errorMessage.textContent = 'Please enter details for the "Other" status.';
                 errorMessage.classList.remove('hidden');
@@ -169,26 +150,23 @@
             payload.append(`entry.${MERIT_NUMBER_ENTRY_ID}`, currentMeritNumber); 
             payload.append(`entry.${NAME_ENTRY_ID}`, studentName);
 
-            // Logic to handle the combined "Status" and "Other" field
+            // Correctly handle the two-part "Other" option
+            const statusValueToSend = selectedStatus === 'Other' ? '__other_option__' : selectedStatus;
+            payload.append(`entry.${STATUS_ENTRY_ID}`, statusValueToSend);
+
             if (selectedStatus === 'Other') {
-                // For "Other", submit the text from the details box
-                payload.append(`entry.${STATUS_ENTRY_ID}`, otherDetails);
-            } else {
-                // Otherwise, submit the value from the dropdown ("Awarded", "Redeemed")
-                payload.append(`entry.${STATUS_ENTRY_ID}`, selectedStatus);
+                payload.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, otherDetails);
             }
 
             try {
-                const response = await fetch(FORM_RESPONSE_BASE_URL, {
+                await fetch(FORM_RESPONSE_BASE_URL, {
                     method: 'POST',
                     body: payload,
                     mode: 'no-cors' 
                 });
-
                 document.getElementById('submitted-name').textContent = studentName;
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('success-content').classList.remove('hidden');
-
             } catch (error) {
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('form-content').classList.remove('hidden');
