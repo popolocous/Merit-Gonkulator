@@ -1,80 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Merit Number Check-in</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merit Number Check-in</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-  <!-- Hidden form for actual Google Form submission -->
-  <form id="realForm"
-        action="https://docs.google.com/forms/d/e/1FAIpQLScbcQWyLVWLH7oKs81TeswmMhuVF5ezkRanyZXU9jVQ7qGK1g/formResponse"
-        method="POST"
-        target="hidden_iframe">
-    <input type="hidden" name="entry.365655658" id="entryMeritNumber">
-    <input type="hidden" name="entry.553918421" id="entryName">
-    <input type="hidden" name="entry.2105559916" id="entryStatus">
-    <input type="hidden" name="entry.720030855" id="entryOther">
-  </form>
-  <iframe name="hidden_iframe" style="display:none;"></iframe>
+<div id="app" class="bg-white p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-lg transition-all duration-300">
 
-  <!-- Visible app container -->
-  <div id="app" class="bg-white p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-lg transition-all duration-300">
-    <!-- Loader -->
-    <div id="loader" class="hidden text-center">
-      <svg class="animate-spin mx-auto h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p class="mt-4 text-gray-600 font-medium">Submitting data, please wait...</p>
-    </div>
+  <div id="loader" class="hidden text-center">
+    <svg class="animate-spin mx-auto h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="mt-4 text-gray-600 font-medium">Submitting data, please wait...</p>
+  </div>
 
-    <!-- Form -->
-    <div id="form-content">
-      <h1 class="text-3xl font-extrabold text-indigo-700 mb-2">Merit Number Check-in</h1>
-      <p class="text-gray-600 mb-6">
-        Merit Number:
-        <span id="asset-display" class="font-bold text-gray-800 bg-indigo-100 px-2 py-0.5 rounded-md">-- Loading --</span>
-      </p>
+  <div id="form-content">
+    <h1 class="text-3xl font-extrabold text-indigo-700 mb-2">Merit Number Check-in</h1>
+    <p class="text-gray-600 mb-6">Merit Number: <span id="asset-display" class="font-bold text-gray-800 bg-indigo-100 px-2 py-0.5 rounded-md">-- Loading --</span></p>
 
-      <!-- Student Name -->
-      <label for="student-name" class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
-      <input type="text" id="student-name" placeholder="Enter full name"
-             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm mb-4" required>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
+    <input type="text" id="student-name" placeholder="Enter full name"
+           class="w-full p-3 border border-gray-300 rounded-lg mb-4" required>
 
-      <!-- Status -->
-      <label for="status-select" class="block text-sm font-medium text-gray-700 mb-2">Select Status</label>
-      <select id="status-select" onchange="toggleOtherDetails()"
-              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm bg-white mb-4" required>
-        <option value="" disabled selected>-- Choose Status --</option>
-        <option value="Awarded">Awarded</option>
-        <option value="Redeemed">Redeemed</option>
-        <option value="Other">Other (Requires Details)</option>
-      </select>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Select Status</label>
+    <select id="status-select" onchange="toggleOtherDetails()"
+            class="w-full p-3 border border-gray-300 rounded-lg mb-4" required>
+      <option value="" disabled selected>-- Choose Status --</option>
+      <option value="Awarded">Awarded</option>
+      <option value="Redeemed">Redeemed</option>
+      <option value="Other">Other (Requires Details)</option>
+    </select>
 
-      <!-- Conditional Other Details -->
-      <div id="other-details-container" class="hidden mb-4 p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
-        <label for="other-details" class="block text-sm font-medium text-gray-800 mb-2">
-          Please Specify Details (Required for 'Other')
-        </label>
-        <input type="text" id="other-details" placeholder="e.g., Error in printing, Lost"
-               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
-      </div>
-
-      <!-- Submit button -->
-      <button onclick="prepareAndSubmit()" id="submit-button"
-              class="mt-6 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:scale-[1.01]">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m5.618-4.103a2.403 2.403 0 00-3.411 0L12 9.584 7.793 5.376a2.403 2.403 0 10-3.411 3.411l5.88 5.88 7.07-7.07a2.403 2.403 0 000-3.411z">
-          </path>
-        </svg>
-        Check In Merit Number
-      </button>
-      <p id="error-message" clas
+    <div id="other-details-container" class="hidden mb-4 p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
+      <label clas
