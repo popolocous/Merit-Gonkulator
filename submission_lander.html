@@ -142,7 +142,8 @@
             document.getElementById('student-name').focus();
         });
 
-        // Updated function to use the fetch API with URLSearchParams for reliable submission
+        // Updated function to use the fetch API with URLSearchParams, removing the Content-Type header
+        // to comply with no-cors limitations, which should allow the submission to pass.
         async function prepareAndSubmit() {
             const nameInput = document.getElementById('student-name');
             const statusSelect = document.getElementById('status-select');
@@ -191,20 +192,15 @@
 
             // --- 2. Send the request using fetch ---
             try {
-                // Use 'no-cors' mode and the correct Content-Type for Google Forms.
+                // Use 'no-cors' mode and allow the browser to set the Content-Type header automatically 
+                // based on the URLSearchParams string body.
                 const response = await fetch(FORM_RESPONSE_BASE_URL, {
                     method: 'POST',
                     // The body is the URL encoded string
                     body: searchParams.toString(),
-                    // Crucial header for Google Forms POST submission
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
+                    // REMOVED: 'Content-Type': 'application/x-www-form-urlencoded' header
                     mode: 'no-cors' 
                 });
-                
-                // Since the mode is 'no-cors', the response status is opaque (always success here). 
-                // We rely on the request having been sent successfully.
                 
                 // Show success content
                 const submittedNameSpan = document.getElementById('submitted-name');
