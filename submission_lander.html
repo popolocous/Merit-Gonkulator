@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
     <title>Merit Number Check-in</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,7 +11,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <!-- CONFIGURATION AREA (VERIFIED WITH YOUR LATEST LINK) -->
+    <!-- CONFIGURATION AREA (VERIFIED AND CORRECT) -->
     <script>
         const FORM_RESPONSE_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLScbcQWyLVWLH7oKs81TeswmMhuVF5ezkRanyZXU9jVQ7qGK1g/formResponse"; 
         const MERIT_NUMBER_ENTRY_ID = "1378183435";
@@ -30,22 +30,29 @@
         </div>
 
         <div id="form-content">
-            <h1 class="text-3xl font-extrabold text-indigo-700 mb-2">Merit Number Check-in</h1>
-            <p class="text-gray-600 mb-6">Merit Number: <span id="asset-display" class="font-bold text-gray-800 bg-indigo-100 px-2 py-0.5 rounded-md">-- Loading --</span></p>
+
+            <!-- Your Logo is here -->
+            <img src="https://i.ibb.co/7jWd7g7/opa-logo-cropped.png" alt="Owasso Preparatory Academy Logo" class="mx-auto w-32 h-32 rounded-full object-cover border-4 border-gray-200 mb-6">
+
+            <h1 class="text-3xl font-extrabold text-indigo-700 mb-2 text-center">Merit Number Check-in</h1>
+            <p class="text-gray-600 mb-6 text-center">Merit Number: <span id="asset-display" class="font-bold text-gray-800 bg-indigo-100 px-2 py-0.5 rounded-md">-- Loading --</span></p>
+            
             <label for="student-name" class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
             <input type="text" id="student-name" placeholder="Enter full name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm mb-4" required>
+            
             <label for="status-select" class="block text-sm font-medium text-gray-700 mb-2">Select Status</label>
             <select id="status-select" onchange="toggleOtherDetails()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm appearance-none bg-white mb-4" required>
                 <option value="" disabled selected>-- Choose Status --</option>
-                <!-- Added explicit values to ensure they match the Google Form options exactly -->
                 <option value="Awarded">Awarded</option>
                 <option value="Redeemed">Redeemed</option>
                 <option value="Other">Other (Requires Details)</option>
             </select>
+            
             <div id="other-details-container" class="hidden mb-4 p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
                 <label for="other-details" class="block text-sm font-medium text-gray-800 mb-2">Please Specify Details (Required for 'Other')</label>
                 <input type="text" id="other-details" placeholder="e.g., Error in printing, Lost" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm">
             </div>
+            
             <button onclick="submitData()" id="submit-button" class="mt-6 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:scale-[1.01]">
                 Check In Merit Number
             </button>
@@ -55,7 +62,8 @@
         <div id="success-content" class="text-center hidden">
             <svg class="mx-auto w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <h2 class="text-2xl font-bold text-green-700 mt-4">Success!</h2>
-            <p class="text-gray-600 mt-2">Merit Number data submitted successfully by <span id="submitted-name" class="font-bold"></span>.</p>
+            <!-- Success Message Text Updated Here -->
+            <p class="text-gray-600 mt-2">Merit submitted successfully for <span id="submitted-name" class="font-bold"></span>.</p>
             <button onclick="location.reload()" class="mt-6 py-2 px-4 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition duration-150">Scan Another</button>
         </div>
     </div>
@@ -126,21 +134,12 @@
             payload.append(`entry.${MERIT_NUMBER_ENTRY_ID}`, currentMeritNumber); 
             payload.append(`entry.${NAME_ENTRY_ID}`, studentName);
 
-            // --- REVISED AND MORE ROBUST LOGIC ---
             if (selectedStatus === 'Other') {
-                // If "Other" is chosen, submit the special "__other_option__" value to the status field
-                // AND submit the user's text to the separate "other details" field.
                 payload.append(`entry.${STATUS_ENTRY_ID}`, '__other_option__');
                 payload.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, otherDetails);
             } else {
-                // If a standard option is chosen, just submit its value to the status field.
-                // DO NOT include the "other details" entry at all.
                 payload.append(`entry.${STATUS_ENTRY_ID}`, selectedStatus);
             }
-
-            // Optional but recommended: Log the final URL to the console for debugging.
-            // To see this, right-click your webpage, select "Inspect", and go to the "Console" tab.
-            console.log("Final Submission URL for Debugging:", `${FORM_RESPONSE_BASE_URL}?${payload.toString()}`);
 
             try {
                 await fetch(FORM_RESPONSE_BASE_URL, {
