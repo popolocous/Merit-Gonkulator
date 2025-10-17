@@ -85,7 +85,7 @@
             <label for="student-name" class="block text-sm font-medium text-gray-700 mb-2">
                 Student Name
             </label>
-            <input type="text" id="student-name" placeholder="Enter your full name" 
+            <input type="text" id="student-name" placeholder="Enter full name" 
                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm mb-4"
                    required>
                    
@@ -201,7 +201,7 @@
             document.getElementById('form-content').classList.add('hidden');
             document.getElementById('loader').classList.remove('hidden');
             
-            // Set flag to indicate submission is pending (NEW)
+            // Set flag to indicate submission is pending
             isSubmissionPending = true; 
             
             // --- 1. Create a Dynamic Form ---
@@ -242,11 +242,11 @@
             // Submitting the native form is the most reliable way to post to Google Forms
             form.submit();
 
+            // FIX: Remove the temporary form immediately to prevent potential DOM conflicts
+            form.remove();
+
             // The success logic will now be handled by the formSubmitComplete() function 
             // when the hidden_iframe finishes loading.
-            
-            // Cleanup: remove the temporary form (optional, but good practice)
-            // setTimeout(() => form.remove(), 5000); 
         }
     </script>
 
