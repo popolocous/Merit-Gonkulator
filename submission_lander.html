@@ -34,7 +34,7 @@
         
         let submittedName = ''; // Global to hold the name for the success message
         
-        // --- NOTE: Submission now uses the 'fetch' API with URLSearchParams for reliable submission.
+        // --- NOTE: Submission now uses the 'fetch' API with a GET method for maximum reliability.
 
     </script>
 </head>
@@ -142,8 +142,8 @@
             document.getElementById('student-name').focus();
         });
 
-        // Updated function to use the fetch API with URLSearchParams, removing the Content-Type header
-        // to comply with no-cors limitations, which should allow the submission to pass.
+        // CRITICAL FIX: Switched from POST to GET, sending all data in the URL query string.
+        // This is the most reliable method for client-side Google Forms submission in restricted environments.
         async function prepareAndSubmit() {
             const nameInput = document.getElementById('student-name');
             const statusSelect = document.getElementById('status-select');
@@ -179,7 +179,7 @@
             document.getElementById('loader').classList.remove('hidden');
             submitButton.disabled = true;
 
-            // --- 1. Create URLSearchParams object (mimics standard form POST data) ---
+            // --- 1. Create URLSearchParams object ---
             const searchParams = new URLSearchParams();
             
             // Add fields to the URLSearchParams object
@@ -190,15 +190,15 @@
             const detailsToSubmit = selectedStatus === 'Other' ? otherDetails : '';
             searchParams.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, detailsToSubmit);
 
-            // --- 2. Send the request using fetch ---
+            // --- 2. Construct the final GET URL ---
+            const finalUrl = `${FORM_RESPONSE_BASE_URL}?${searchParams.toString()}`;
+
+            // --- 3. Send the request using fetch with GET method ---
             try {
-                // Use 'no-cors' mode and allow the browser to set the Content-Type header automatically 
-                // based on the URLSearchParams string body.
-                const response = await fetch(FORM_RESPONSE_BASE_URL, {
-                    method: 'POST',
-                    // The body is the URL encoded string
-                    body: searchParams.toString(),
-                    // REMOVED: 'Content-Type': 'application/x-www-form-urlencoded' header
+                // Using method: 'GET' with the data in the query string is the most reliable way 
+                // to trigger a Google Forms submission in a restricted environment.
+                const response = await fetch(finalUrl, {
+                    method: 'GET', // <-- Crucial change from POST to GET
                     mode: 'no-cors' 
                 });
                 
@@ -211,14 +211,14 @@
                 successContent.classList.remove('hidden');
 
             } catch (error) {
-                console.error("Submission failed via fetch:", error);
+                console.error("Submission failed via fetch GET:", error);
                 
                 // Revert to form state and show error
                 document.getElementById('loader').classList.add('hidden');
                 document.getElementById('form-content').classList.remove('hidden');
                 submitButton.disabled = false;
                 
-                errorMessage.textContent = 'An error occurred during submission. Please check your connection or try again.';
+                errorMessage.textContent = 'An error occurred during submission. Please check your connection or try again. (Method: GET/No-CORS failed)';
                 errorMessage.classList.remove('hidden');
             }
         }
