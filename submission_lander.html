@@ -14,20 +14,20 @@
 
     <!-- Configuration Area (FULLY CONFIGURED WITH YOUR IDs) -->
     <script>
-        // 1. FORM RESPONSE BASE URL (NOW CORRECTED AND ACTIVE)
+        // 1. FORM RESPONSE BASE URL (CORRECT)
         const FORM_RESPONSE_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLScbcQWyLVWLH7oKs81TeswmMhuVF5ezkRanyZXU9jVQ7qGK1g/formResponse"; 
 
-        // 2. MERIT NUMBER ENTRY ID
-        const MERIT_NUMBER_ENTRY_ID = "1378183435";
+        // 2. MERIT NUMBER ENTRY ID (UPDATED)
+        const MERIT_NUMBER_ENTRY_ID = "365655658";
 
-        // 3. STUDENT NAME ENTRY ID
-        const NAME_ENTRY_ID = "893236315"; 
+        // 3. STUDENT NAME ENTRY ID (UPDATED)
+        const NAME_ENTRY_ID = "553918421"; 
         
-        // 4. STATUS ENTRY ID
-        const STATUS_ENTRY_ID = "956882888";
+        // 4. STATUS ENTRY ID (UPDATED)
+        const STATUS_ENTRY_ID = "2105559916";
 
-        // 5. OTHER DETAILS ENTRY ID
-        const OTHER_DETAILS_ENTRY_ID = "588052225"; 
+        // 5. OTHER DETAILS ENTRY ID (UPDATED)
+        const OTHER_DETAILS_ENTRY_ID = "720030855"; 
         
         // Error check
         if (FORM_RESPONSE_BASE_URL.includes("viewform")) {
@@ -176,6 +176,9 @@
             // Only append the Other Details if something was entered (or append an empty string if not required)
             const detailsToSubmit = selectedStatus === 'Other' ? otherDetails : '';
             payload.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, detailsToSubmit);
+
+            // DEBUGGING STEP: Log the full submission URL to the console
+            // console.log("Full Submission URL for Testing:", FORM_RESPONSE_BASE_URL + '?' + payload.toString());
 
 
             // 2. POST the data to the /formResponse endpoint.
