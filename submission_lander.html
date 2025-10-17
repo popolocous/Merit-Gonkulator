@@ -9,10 +9,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <!-- Configuration Area (FULLY CONFIGURED WITH YOUR IDs) -->
+    <!-- Configuration and Global Functions (MOVED TO HEAD FOR GUARANTEED EXECUTION) -->
     <script>
         // 1. FORM RESPONSE BASE URL (CORRECT)
         const FORM_RESPONSE_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLScbcQWyLVWLH7oKs81TeswmMhuVF5ezkRanyZXU9jVQ7qGK1g/formResponse"; 
@@ -33,7 +31,35 @@
         if (FORM_RESPONSE_BASE_URL.includes("viewform")) {
             console.error("CONFIGURATION ERROR: FORM_RESPONSE_BASE_URL must use /formResponse, not /viewform.");
         }
+        
+        // --- Global state and callback function must be defined before the iframe calls it ---
+        let submittedName = ''; // Global to hold the name for the success message
+
+        // Function called by the iframe's onload event after submission
+        function formSubmitComplete() {
+            const loader = document.getElementById('loader');
+            
+            // FIX: Added null check for 'loader'. If the iframe loads before the body,
+            // the element might not exist yet, causing the TypeError.
+            if (!loader) {
+                return; 
+            }
+            
+            // Check if the loader is visible (meaning a submission was in progress)
+            if (!loader.classList.contains('hidden')) {
+                // Submission is complete, show success
+                document.getElementById('submitted-name').textContent = submittedName;
+                loader.classList.add('hidden');
+                document.getElementById('success-content').classList.remove('hidden');
+            }
+            // If the iframe loads for any other reason, do nothing.
+        }
     </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    
+    <!-- Hidden iframe to receive the form submission response without interrupting the user -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="formSubmitComplete()"></iframe>
     
     <div id="app" class="bg-white p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-lg transition-all duration-300">
         <div id="loader" class="hidden text-center">
@@ -56,7 +82,7 @@
                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm mb-4"
                    required>
                    
-            <!-- Status Dropdown (UPDATED) -->
+            <!-- Status Dropdown -->
             <label for="status-select" class="block text-sm font-medium text-gray-700 mb-2">
                 Select Status
             </label>
@@ -78,7 +104,7 @@
                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 shadow-sm">
             </div>
 
-            <button onclick="submitData()" id="submit-button"
+            <button onclick="prepareAndSubmit()" id="submit-button"
                     class="mt-6 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 ease-in-out transform hover:scale-[1.01]">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.103a2.403 2.403 0 00-3.411 0L12 9.584 7.793 5.376a2.403 2.403 0 10-3.411 3.411l5.88 5.88 7.07-7.07a2.403 2.403 0 000-3.411z"></path></svg>
                 Check In Merit Number
@@ -119,9 +145,8 @@
                 otherDetailsInput.value = ''; // Clear the input if not needed
             }
         }
-
+        
         document.addEventListener('DOMContentLoaded', () => {
-            // Updated to look for 'meritNumber' parameter
             currentMeritNumber = getUrlParameter('meritNumber');
             
             if (!currentMeritNumber) {
@@ -136,7 +161,8 @@
             document.getElementById('student-name').focus();
         });
 
-        async function submitData() {
+        // The main function renamed to reflect the preparation step
+        function prepareAndSubmit() {
             const nameInput = document.getElementById('student-name');
             const statusSelect = document.getElementById('status-select');
             const otherDetailsInput = document.getElementById('other-details');
@@ -161,47 +187,56 @@
                 return;
             }
             
-            // --- Configuration Check (Fully configured) ---
+            // Set global name for success message
+            submittedName = studentName;
             
             errorMessage.classList.add('hidden');
             document.getElementById('form-content').classList.add('hidden');
             document.getElementById('loader').classList.remove('hidden');
             
-            // 1. Build the data payload
-            const payload = new URLSearchParams();
-            payload.append(`entry.${MERIT_NUMBER_ENTRY_ID}`, currentMeritNumber); 
-            payload.append(`entry.${NAME_ENTRY_ID}`, studentName);
-            payload.append(`entry.${STATUS_ENTRY_ID}`, selectedStatus);
+            // --- 1. Create a Dynamic Form ---
+            const form = document.createElement('form');
+            form.action = FORM_RESPONSE_BASE_URL;
+            form.method = 'POST';
+            form.target = 'hidden_iframe'; // Submit to the hidden iframe
+            form.style.display = 'none';
+            
+            // --- 2. Add Hidden Input Fields ---
+            
+            // Helper function to create hidden inputs
+            const createHiddenInput = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                return input;
+            };
 
-            // Only append the Other Details if something was entered (or append an empty string if not required)
+            // Merit Number
+            form.appendChild(createHiddenInput(`entry.${MERIT_NUMBER_ENTRY_ID}`, currentMeritNumber)); 
+
+            // Student Name
+            form.appendChild(createHiddenInput(`entry.${NAME_ENTRY_ID}`, studentName));
+            
+            // Status
+            form.appendChild(createHiddenInput(`entry.${STATUS_ENTRY_ID}`, selectedStatus));
+
+            // Other Details (only submit if something was entered)
             const detailsToSubmit = selectedStatus === 'Other' ? otherDetails : '';
-            payload.append(`entry.${OTHER_DETAILS_ENTRY_ID}`, detailsToSubmit);
-
-            // DEBUGGING STEP: Log the full submission URL to the console
-            // console.log("Full Submission URL for Testing:", FORM_RESPONSE_BASE_URL + '?' + payload.toString());
+            form.appendChild(createHiddenInput(`entry.${OTHER_DETAILS_ENTRY_ID}`, detailsToSubmit));
 
 
-            // 2. POST the data to the /formResponse endpoint.
-            try {
-                // Using mode: 'no-cors' allows the submission to bypass CORS restrictions
-                // for the Google Forms endpoint, ensuring the data is sent.
-                const response = await fetch(FORM_RESPONSE_BASE_URL, {
-                    method: 'POST',
-                    body: payload,
-                    mode: 'no-cors' 
-                });
+            // --- 3. Submit the Form ---
+            document.body.appendChild(form);
+            
+            // Submitting the native form is the most reliable way to post to Google Forms
+            form.submit();
 
-                // Display success message
-                document.getElementById('submitted-name').textContent = studentName;
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('success-content').classList.remove('hidden');
-
-            } catch (error) {
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('form-content').classList.remove('hidden');
-                errorMessage.textContent = 'Submission failed due to a network error. Try again.';
-                errorMessage.classList.remove('hidden');
-            }
+            // The success logic will now be handled by the formSubmitComplete() function 
+            // when the hidden_iframe finishes loading.
+            
+            // Cleanup: remove the temporary form (optional, but good practice)
+            // setTimeout(() => form.remove(), 5000); 
         }
     </script>
 
